@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="edu.mit.media.funf.test" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="14" />
+
+    <instrumentation
+        android:name="android.test.InstrumentationTestRunner"
+        android:functionalTest="false"
+        android:handleProfiling="false"
+        android:label="Tests for edu.mit.media.funf.test"
+        android:targetPackage="edu.mit.media.funf.test" />
+
+    <application android:label="funf" >
+        <uses-library android:name="android.test.runner" />
+    </application>
+
+</manifest>

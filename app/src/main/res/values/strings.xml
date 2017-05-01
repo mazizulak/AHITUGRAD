@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">NotifMan</string>
+    <string name="welcome_message">Hello! This is a Notification Management App which is produced by Aziz Ulak and Hüseyin Yusuf for Graduation Purposes</string>
+    <string name="title_dashboard">Settings</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="home">Home</string>
+</resources>
