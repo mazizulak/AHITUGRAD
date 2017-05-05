@@ -1,10 +1,12 @@
 package com.ahitugrad.notifman;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -12,12 +14,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,15 +64,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ImageView ivtest = new ImageView(this);
         ivtest.setImageDrawable(getResources().getDrawable(R.drawable.logo));
-        notifications.add(new Notification("Test",ivtest,new Date()));
-        notifications.add(new Notification("Test",ivtest,new Date()));
-        notifications.add(new Notification("Test",ivtest,new Date()));
-        notifications.add(new Notification("Test",ivtest,new Date()));
-        notifications.add(new Notification("Test",ivtest,new Date()));
-        notifications.add(new Notification("Test",ivtest,new Date()));
-        notifications.add(new Notification("Test",ivtest,new Date()));
-        notifications.add(new Notification("Test",ivtest,new Date()));
-        notifications.add(new Notification("Test",ivtest,new Date()));
+        notifications.add(new Notification("Test","Test", ivtest,new Date()));
+        notifications.add(new Notification("Test","Test", ivtest,new Date()));
+        notifications.add(new Notification("Test","Test", ivtest,new Date()));
+        notifications.add(new Notification("Test","Test", ivtest,new Date()));
+        notifications.add(new Notification("Test","Test", ivtest,new Date()));
+        notifications.add(new Notification("Test","Test", ivtest,new Date()));
+        notifications.add(new Notification("Test","Test", ivtest,new Date()));
         rvNotifications = (RecyclerView) findViewById(R.id.rvNotifications);
         tvWelcome = (TextView) findViewById(R.id.tvWelcome);
         rvNotifications.setHasFixedSize(true);
@@ -102,6 +100,14 @@ public class MainActivity extends AppCompatActivity {
             String title = intent.getStringExtra("title");
             String text = intent.getStringExtra("text");
             Toast.makeText(getApplicationContext(),title, LENGTH_LONG).show();
+            byte[] b = intent.getByteArrayExtra("icon");
+            Bitmap bmp = BitmapFactory.decodeByteArray(b, 0, b.length);
+            ImageView image = new ImageView(getApplicationContext());
+            image.setImageBitmap(bmp);
+            notifications.add(new Notification(title,text,image,new Date()));
+            mAdapter.notifyDataSetChanged();
+            NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancelAll();
 
         }
     };

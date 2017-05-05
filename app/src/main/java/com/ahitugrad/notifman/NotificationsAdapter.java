@@ -46,7 +46,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         holder.tvTitle.setText(notif.title);
         holder.tvContent.setText(notif.content);
         holder.tvTime.setText(dateFormat.format(date));
-        holder.ivLogo.setImageDrawable(context.getResources().getDrawable(R.drawable.logo));
+        holder.ivLogo.setImageDrawable(notif.image.getDrawable());
 
 
         holder.bind(notif,listener);

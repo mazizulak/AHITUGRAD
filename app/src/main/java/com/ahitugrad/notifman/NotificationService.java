@@ -1,13 +1,23 @@
 package com.ahitugrad.notifman;
 
 
+import android.app.*;
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.support.v4.content.LocalBroadcastManager;
+
+import java.io.ByteArrayOutputStream;
 
 
 public class NotificationService extends NotificationListenerService {
@@ -32,17 +42,40 @@ public class NotificationService extends NotificationListenerService {
         Bundle extras = sbn.getNotification().extras;
         String title = extras.getString("android.title");
         String text = extras.getCharSequence("android.text").toString();
+        int iconId = extras.getInt(Notification.EXTRA_SMALL_ICON);
 
-        Log.i("Package",pack);
-        Log.i("Ticker",ticker);
-        Log.i("Title",title);
-        Log.i("Text",text);
+        Context remotePackageContext = null;
+        Bitmap bmp = null;
+        try {
+            remotePackageContext = getApplicationContext().createPackageContext(pack, 0);
+            Drawable icon = remotePackageContext.getResources().getDrawable(iconId);
+            if(icon !=null) {
+                bmp = ((BitmapDrawable) icon).getBitmap();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+        Log.i("Package", pack);
+        Log.i("Ticker", ticker);
+        Log.i("Title", title);
+        Log.i("Text", text);
 
         Intent msgrcv = new Intent("Msg");
         msgrcv.putExtra("package", pack);
         msgrcv.putExtra("ticker", ticker);
         msgrcv.putExtra("title", title);
         msgrcv.putExtra("text", text);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] b = baos.toByteArray();
+
+        Log.i("iconId","iconid " + iconId);
+        msgrcv.putExtra("icon",b);
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(msgrcv);
 

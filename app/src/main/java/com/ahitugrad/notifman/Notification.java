@@ -15,9 +15,9 @@ public class Notification {
     ImageView image;
     Date time;
 
-    public Notification(String title, ImageView image, Date time) {
+    public Notification(String title, String text, ImageView image, Date time) {
         this.title = title;
-        this.content = "No content given for this notification";
+        this.content = text;
         this.image = image;
         this.time = time;
     }
