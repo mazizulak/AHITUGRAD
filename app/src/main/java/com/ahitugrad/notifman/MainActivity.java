@@ -1,22 +1,34 @@
 package com.ahitugrad.notifman;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 public class MainActivity extends AppCompatActivity {
 
-    private TextView mTextMessage;
+    private TextView tvWelcome;
     private RecyclerView rvNotifications;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -30,12 +42,15 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     rvNotifications.setVisibility(View.GONE);
+                    tvWelcome.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_dashboard:
                     rvNotifications.setVisibility(View.GONE);
+                    tvWelcome.setVisibility(View.GONE);
                     return true;
                 case R.id.navigation_notifications:
                     rvNotifications.setVisibility(View.VISIBLE);
+                    tvWelcome.setVisibility(View.GONE);
                     return true;
             }
             return false;
@@ -59,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         notifications.add(new Notification("Test",ivtest,new Date()));
         notifications.add(new Notification("Test",ivtest,new Date()));
         rvNotifications = (RecyclerView) findViewById(R.id.rvNotifications);
+        tvWelcome = (TextView) findViewById(R.id.tvWelcome);
         rvNotifications.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         rvNotifications.setLayoutManager(mLayoutManager);
@@ -69,13 +85,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         rvNotifications.setAdapter(mAdapter);
-        rvNotifications.setVisibility(View.GONE);
         //mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
 
 
     }
+
+    private TableLayout tab;
+    private BroadcastReceiver onNotice= new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String pack = intent.getStringExtra("package");
+            String title = intent.getStringExtra("title");
+            String text = intent.getStringExtra("text");
+            Toast.makeText(getApplicationContext(),title, LENGTH_LONG).show();
+
+        }
+    };
 
 }
