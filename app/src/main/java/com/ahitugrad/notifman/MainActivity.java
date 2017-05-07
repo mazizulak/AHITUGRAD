@@ -20,6 +20,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences mPrefs;
     private TextView tvWelcome;
+    private Button bRelease;
     private RecyclerView rvNotifications;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -84,18 +86,32 @@ public class MainActivity extends AppCompatActivity {
             Log.i("Notification", " alan For'un içine girdim");
             String json = mPrefs.getString("Notification" + i, "");
             Notification not = gson.fromJson(json, Notification.class);
+            notifications.add(not);
         }
 
 
         rvNotifications = (RecyclerView) findViewById(R.id.rvNotifications);
         tvWelcome = (TextView) findViewById(R.id.tvWelcome);
+        bRelease = (Button) findViewById(R.id.bRelease);
+
+        bRelease.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+
         rvNotifications.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         rvNotifications.setLayoutManager(mLayoutManager);
         mAdapter = new NotificationsAdapter(notifications, getApplicationContext(), new NotificationsAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Notification notification) {
-                //// TODO: 01/05/2017
+                Intent launchIntent = getPackageManager().getLaunchIntentForPackage(notification.getPackagename());
+                startActivity(launchIntent);
+                notifications.remove(notification);
+                mAdapter.notifyDataSetChanged();
             }
         });
         rvNotifications.setAdapter(mAdapter);
