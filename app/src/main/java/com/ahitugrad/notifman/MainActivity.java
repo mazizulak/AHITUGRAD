@@ -1,6 +1,7 @@
 package com.ahitugrad.notifman;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,12 +10,15 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -43,8 +47,9 @@ public class MainActivity extends AppCompatActivity {
     private Button bRelease;
     private RecyclerView rvNotifications;
     private RecyclerView.Adapter mAdapter;
+    private int isAvailable = 0;
     private RecyclerView.LayoutManager mLayoutManager;
-    private ArrayList notifications = new ArrayList<Notification>();
+    private ArrayList<Notification> notifications = new ArrayList();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -85,8 +90,10 @@ public class MainActivity extends AppCompatActivity {
         for(int i =0 ; i < getNotId(); i++){
             Log.i("Notification", " alan For'un içine girdim");
             String json = mPrefs.getString("Notification" + i, "");
-            Notification not = gson.fromJson(json, Notification.class);
-            notifications.add(not);
+            if(json != null){
+                Notification not = gson.fromJson(json, Notification.class);
+                notifications.add(not);
+            }
         }
 
 
@@ -97,6 +104,57 @@ public class MainActivity extends AppCompatActivity {
         bRelease.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
+                isAvailable = 1;
+                for (int i = 0; i < notifications.size() ; i++){
+
+                    Log.i("Şu Notu saldım: ", ""+i);
+                    Drawable appIcon = null;
+                    try {
+                        appIcon = getApplicationContext().getPackageManager().getApplicationIcon(notifications.get(i).getPackagename());
+                    } catch (PackageManager.NameNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
+                    mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+                    mBuilder.setContentTitle(notifications.get(i).getTitle());
+                    mBuilder.setContentText(notifications.get(i).getContent());
+
+                    try {
+                        Bitmap largeIcon = ((BitmapDrawable) appIcon).getBitmap();
+                        mBuilder.setLargeIcon(largeIcon);
+                    }catch (Exception e){
+                        Log.e("Yakaladım:", e.toString());
+                    }
+
+                    Intent resultIntent = getPackageManager().getLaunchIntentForPackage(notifications.get(i).getPackagename());
+                    PendingIntent resultPendingIntent =
+                            PendingIntent.getActivity(
+                                    getApplicationContext(),
+                                    0,
+                                    resultIntent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT
+                            );
+
+                    mBuilder.setContentIntent(resultPendingIntent);
+
+
+                    // Sets an ID for the notification
+                                        int mNotificationId = 001;
+                    // Gets an instance of the NotificationManager service
+                                        NotificationManager mNotifyMgr =
+                                                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    // Builds the notification and issues it.
+                                        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+
+                }
+
+                notifications.clear();
+                mAdapter.notifyDataSetChanged();
+
 
             }
         });
@@ -128,24 +186,26 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i("onReceive e girdim","");
-            String pack = intent.getStringExtra("package");
-            String title = intent.getStringExtra("title");
-            String text = intent.getStringExtra("text");
-            Toast.makeText(getApplicationContext(), title, LENGTH_LONG).show();
 
-            Notification newNot = new Notification(getAndUpdateLatestId(), title, pack, text, new Date());
-            notifications.add(newNot);
-            mAdapter.notifyDataSetChanged();
-            SharedPreferences.Editor prefsEditor = mPrefs.edit();
-            Gson gson = new Gson();
-            Log.i("GSON", " işlemine başladım");
-            String json = gson.toJson(newNot); // myObject - instance of MyObject
-            Log.i("toJsonBitt","ok");
-            prefsEditor.putString("Notification" + newNot.getId(), json);
-            prefsEditor.apply();
-            //NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-            //notificationManager.cancelAll();
+            if(isAvailable == 0){
+                Log.i("onReceive e girdim","");
+                String pack = intent.getStringExtra("package");
+                String title = intent.getStringExtra("title");
+                String text = intent.getStringExtra("text");
+                Toast.makeText(getApplicationContext(), title, LENGTH_LONG).show();
+
+                Notification newNot = new Notification(getAndUpdateLatestId(), title, pack, text, new Date());
+                notifications.add(newNot);
+                mAdapter.notifyDataSetChanged();
+                SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                Gson gson = new Gson();
+                Log.i("GSON", " işlemine başladım");
+                String json = gson.toJson(newNot); // myObject - instance of MyObject
+                Log.i("toJsonBitt","ok");
+                prefsEditor.putString("Notification" + newNot.getId(), json);
+                prefsEditor.apply();
+            }
+
 
         }
     };
