@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -34,11 +35,12 @@ public class NotificationService extends NotificationListenerService {
     }
     @Override
 
+
     public void onNotificationPosted(StatusBarNotification sbn) {
 
 
         String pack = sbn.getPackageName();
-        String ticker = sbn.getNotification().tickerText.toString();
+        //String ticker = sbn.getNotification().tickerText.toString();
         Bundle extras = sbn.getNotification().extras;
         String title = extras.getString("android.title");
         String text = extras.getCharSequence("android.text").toString();
@@ -60,13 +62,13 @@ public class NotificationService extends NotificationListenerService {
 
 
         Log.i("Package", pack);
-        Log.i("Ticker", ticker);
+        //Log.i("Ticker", ticker);
         Log.i("Title", title);
         Log.i("Text", text);
 
         Intent msgrcv = new Intent("Msg");
         msgrcv.putExtra("package", pack);
-        msgrcv.putExtra("ticker", ticker);
+        //msgrcv.putExtra("ticker", ticker);
         msgrcv.putExtra("title", title);
         msgrcv.putExtra("text", text);
 
@@ -79,6 +81,12 @@ public class NotificationService extends NotificationListenerService {
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(msgrcv);
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            cancelNotification(sbn.getPackageName(), sbn.getTag(), sbn.getId());
+        }
+        else {
+            cancelNotification(sbn.getKey());
+        }
 
     }
 

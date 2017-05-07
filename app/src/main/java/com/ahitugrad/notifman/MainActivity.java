@@ -5,8 +5,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -14,6 +17,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,13 +25,19 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.Date;
 
 import static android.widget.Toast.LENGTH_LONG;
+import static com.ahitugrad.notifman.CustomApplication.NOTIFICATION_PREF_NAME;
+import static com.ahitugrad.notifman.CustomApplication.getAndUpdateLatestId;
+import static com.ahitugrad.notifman.CustomApplication.getNotId;
 
 public class MainActivity extends AppCompatActivity {
 
+    SharedPreferences mPrefs;
     private TextView tvWelcome;
     private RecyclerView rvNotifications;
     private RecyclerView.Adapter mAdapter;
@@ -62,15 +72,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mPrefs = getApplicationContext().getSharedPreferences(NOTIFICATION_PREF_NAME,MODE_PRIVATE);
         ImageView ivtest = new ImageView(this);
         ivtest.setImageDrawable(getResources().getDrawable(R.drawable.logo));
-        notifications.add(new Notification("Test","Test", ivtest,new Date()));
-        notifications.add(new Notification("Test","Test", ivtest,new Date()));
-        notifications.add(new Notification("Test","Test", ivtest,new Date()));
-        notifications.add(new Notification("Test","Test", ivtest,new Date()));
-        notifications.add(new Notification("Test","Test", ivtest,new Date()));
-        notifications.add(new Notification("Test","Test", ivtest,new Date()));
-        notifications.add(new Notification("Test","Test", ivtest,new Date()));
+        //notifications.add(new Notification("Test","Test", ivtest,new Date()));
+
+
+        Gson gson = new Gson();
+
+        for(int i =0 ; i < getNotId(); i++){
+            Log.i("Notification", " alan For'un içine girdim");
+            String json = mPrefs.getString("Notification" + i, "");
+            Notification not = gson.fromJson(json, Notification.class);
+        }
+
+
         rvNotifications = (RecyclerView) findViewById(R.id.rvNotifications);
         tvWelcome = (TextView) findViewById(R.id.tvWelcome);
         rvNotifications.setHasFixedSize(true);
@@ -96,18 +112,24 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.i("onReceive e girdim","");
             String pack = intent.getStringExtra("package");
             String title = intent.getStringExtra("title");
             String text = intent.getStringExtra("text");
-            Toast.makeText(getApplicationContext(),title, LENGTH_LONG).show();
-            byte[] b = intent.getByteArrayExtra("icon");
-            Bitmap bmp = BitmapFactory.decodeByteArray(b, 0, b.length);
-            ImageView image = new ImageView(getApplicationContext());
-            image.setImageBitmap(bmp);
-            notifications.add(new Notification(title,text,image,new Date()));
+            Toast.makeText(getApplicationContext(), title, LENGTH_LONG).show();
+
+            Notification newNot = new Notification(getAndUpdateLatestId(), title, pack, text, new Date());
+            notifications.add(newNot);
             mAdapter.notifyDataSetChanged();
-            NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancelAll();
+            SharedPreferences.Editor prefsEditor = mPrefs.edit();
+            Gson gson = new Gson();
+            Log.i("GSON", " işlemine başladım");
+            String json = gson.toJson(newNot); // myObject - instance of MyObject
+            Log.i("toJsonBitt","ok");
+            prefsEditor.putString("Notification" + newNot.getId(), json);
+            prefsEditor.apply();
+            //NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            //notificationManager.cancelAll();
 
         }
     };

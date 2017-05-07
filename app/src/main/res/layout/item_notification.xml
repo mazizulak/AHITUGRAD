@@ -36,8 +36,8 @@
         android:text="1 May 23:59"
         android:textSize="12sp"
         android:id="@+id/tvTime"
-        android:layout_marginEnd="15dp"
-        android:layout_alignTop="@+id/tvNotificationTitle"
-        android:layout_alignParentEnd="true" />
+        android:layout_above="@+id/tvNotificationTitle"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="12dp" />
 
 </RelativeLayout>

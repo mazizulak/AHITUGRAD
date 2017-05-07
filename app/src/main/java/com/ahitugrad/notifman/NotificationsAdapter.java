@@ -1,6 +1,8 @@
 package com.ahitugrad.notifman;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,10 +48,17 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         holder.tvTitle.setText(notif.title);
         holder.tvContent.setText(notif.content);
         holder.tvTime.setText(dateFormat.format(date));
-        holder.ivLogo.setImageDrawable(notif.image.getDrawable());
+
+        Drawable appIcon = null;
+        try {
+            appIcon = context.getPackageManager().getApplicationIcon(notif.getPackagename());
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        holder.ivLogo.setImageDrawable(appIcon);
 
 
-        holder.bind(notif,listener);
+        holder.bind(notif, listener);
     }
 
     @Override
