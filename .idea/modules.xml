@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/AHITUGRAD.iml" filepath="$PROJECT_DIR$/AHITUGRAD.iml" />
       <module fileurl="file://$PROJECT_DIR$/NotifMan.iml" filepath="$PROJECT_DIR$/NotifMan.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/funf/funf.iml" filepath="$PROJECT_DIR$/funf/funf.iml" />

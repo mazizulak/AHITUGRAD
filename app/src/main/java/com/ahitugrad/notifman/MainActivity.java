@@ -9,13 +9,12 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
@@ -26,7 +25,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static android.widget.Toast.LENGTH_LONG;
+import static com.ahitugrad.notifman.CustomApplication.ISAVAILABLE;
 import static com.ahitugrad.notifman.CustomApplication.NOTIFICATION_PREF_NAME;
 import static com.ahitugrad.notifman.CustomApplication.getAndUpdateLatestId;
 import static com.ahitugrad.notifman.CustomApplication.getNotId;
@@ -44,11 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences mPrefs;
     private TextView tvWelcome;
-    private Button bRelease;
     private RecyclerView rvNotifications;
     private RecyclerView.Adapter mAdapter;
-    private int isAvailable = 0;
-    private RecyclerView.LayoutManager mLayoutManager;
     private ArrayList<Notification> notifications = new ArrayList();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -75,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,31 +79,29 @@ public class MainActivity extends AppCompatActivity {
         mPrefs = getApplicationContext().getSharedPreferences(NOTIFICATION_PREF_NAME,MODE_PRIVATE);
         ImageView ivtest = new ImageView(this);
         ivtest.setImageDrawable(getResources().getDrawable(R.drawable.logo));
-        //notifications.add(new Notification("Test","Test", ivtest,new Date()));
 
+        //notifications.add(new Notification("Test","Test", ivtest,new Date()));
 
         Gson gson = new Gson();
 
         for(int i =0 ; i < getNotId(); i++){
             Log.i("Notification", " alan For'un içine girdim");
             String json = mPrefs.getString("Notification" + i, "");
-            if(json != null){
-                Notification not = gson.fromJson(json, Notification.class);
-                notifications.add(not);
-            }
+            Notification not = gson.fromJson(json, Notification.class);
+            notifications.add(not);
         }
 
 
         rvNotifications = (RecyclerView) findViewById(R.id.rvNotifications);
         tvWelcome = (TextView) findViewById(R.id.tvWelcome);
-        bRelease = (Button) findViewById(R.id.bRelease);
+        Button bRelease = (Button) findViewById(R.id.bRelease);
 
         bRelease.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
 
-                isAvailable = 1;
+                ISAVAILABLE = true;
                 for (int i = 0; i < notifications.size() ; i++){
 
                     Log.i("Şu Notu saldım: ", ""+i);
@@ -122,13 +117,12 @@ public class MainActivity extends AppCompatActivity {
                     mBuilder.setSmallIcon(R.mipmap.ic_launcher);
                     mBuilder.setContentTitle(notifications.get(i).getTitle());
                     mBuilder.setContentText(notifications.get(i).getContent());
+                    mBuilder.setAutoCancel(true);
 
                     try {
-                        Bitmap largeIcon = ((BitmapDrawable) appIcon).getBitmap();
+                        Bitmap largeIcon = (appIcon) != null ? ((BitmapDrawable) appIcon).getBitmap() : null;
                         mBuilder.setLargeIcon(largeIcon);
-                    }catch (Exception e){
-                        Log.e("Yakaladım:", e.toString());
-                    }
+
 
                     Intent resultIntent = getPackageManager().getLaunchIntentForPackage(notifications.get(i).getPackagename());
                     PendingIntent resultPendingIntent =
@@ -143,12 +137,15 @@ public class MainActivity extends AppCompatActivity {
 
 
                     // Sets an ID for the notification
-                                        int mNotificationId = 001;
+                                        int mNotificationId = 1;
                     // Gets an instance of the NotificationManager service
                                         NotificationManager mNotifyMgr =
                                                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                     // Builds the notification and issues it.
                                         mNotifyMgr.notify(mNotificationId, mBuilder.build());
+                    }catch (Exception e){
+                        Log.e("Yakaladım:", e.toString());
+                    }
 
                 }
 
@@ -161,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         rvNotifications.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         rvNotifications.setLayoutManager(mLayoutManager);
         mAdapter = new NotificationsAdapter(notifications, getApplicationContext(), new NotificationsAdapter.OnItemClickListener() {
             @Override
@@ -181,13 +178,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private TableLayout tab;
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        if(intent == null){
+            intent = new Intent();
+        }
+        super.startActivityForResult(intent, requestCode);
+    }
+
+    @Override
+    public void startActivity(Intent intent, @Nullable Bundle options) {
+        if(intent == null){
+            intent = new Intent();
+        }
+        super.startActivity(intent, options);
+    }
+
     private BroadcastReceiver onNotice= new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            if(isAvailable == 0){
+            if(!ISAVAILABLE){
                 Log.i("onReceive e girdim","");
                 String pack = intent.getStringExtra("package");
                 String title = intent.getStringExtra("title");

@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 public class CustomApplication extends Application {
 
     public static int notId = -1;
+    public static boolean ISAVAILABLE = false;
     public static final String NOTIFICATION_PREF_NAME = "notifications";
 
     @Override

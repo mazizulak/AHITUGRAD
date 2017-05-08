@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/Users/huseyin/AndroidStudioProjects/NotifMan/funf/src/main/assets"/><source path="/Users/huseyin/AndroidStudioProjects/NotifMan/funf/build/generated/assets/shaders/debug"/></dataSet><dataSet config="debug"><source path="/Users/huseyin/AndroidStudioProjects/NotifMan/funf/src/debug/assets"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="C:\Users\maziz\AndroidStudioProjects\AHITUGRAD\funf\src\main\assets"/><source path="C:\Users\maziz\AndroidStudioProjects\AHITUGRAD\funf\build\generated\assets\shaders\debug"/></dataSet><dataSet config="debug"><source path="C:\Users\maziz\AndroidStudioProjects\AHITUGRAD\funf\src\debug\assets"/></dataSet></merger>
