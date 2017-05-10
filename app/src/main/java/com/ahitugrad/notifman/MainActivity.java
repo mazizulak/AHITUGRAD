@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                     // Sets an ID for the notification
-                                        int mNotificationId = 1;
+                                        int mNotificationId = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
                     // Gets an instance of the NotificationManager service
                                         NotificationManager mNotifyMgr =
                                                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

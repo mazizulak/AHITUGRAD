@@ -34,4 +34,5 @@ dependencies {
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.google.android.gms:play-services:10.0.0'
     compile 'com.android.support:recyclerview-v7:25.0.1'
+    compile project(path: ':funf')
 }
