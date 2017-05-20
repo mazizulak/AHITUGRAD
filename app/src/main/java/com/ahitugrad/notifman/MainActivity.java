@@ -71,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
+    private Context context;
+
     @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +81,11 @@ public class MainActivity extends AppCompatActivity {
         mPrefs = getApplicationContext().getSharedPreferences(NOTIFICATION_PREF_NAME,MODE_PRIVATE);
         ImageView ivtest = new ImageView(this);
         ivtest.setImageDrawable(getResources().getDrawable(R.drawable.logo));
+
+
+        context = getApplicationContext();
+        Intent service = new Intent(context, BackgroundService.class);
+        context.startService(service);
 
         //notifications.add(new Notification("Test","Test", ivtest,new Date()));
 
@@ -195,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         super.startActivity(intent, options);
     }
 
-    private BroadcastReceiver onNotice= new BroadcastReceiver() {
+    private BroadcastReceiver onNotice = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
