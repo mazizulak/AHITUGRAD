@@ -172,6 +172,11 @@ public class BackgroundService extends Service implements SensorEventListener {
         varianceSum = avg = sum = count = 0;
     }
 
+    public void decideNotificationAllowOrNot(){
+        ///MOST IMPORTANT PARTT!!!!
+    }
+
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
