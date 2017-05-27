@@ -66,6 +66,8 @@ public class BackgroundService extends Service implements SensorEventListener {
         resetCounters();
     }
 
+
+
     private void resetCounters() {
         screencounter = 0;
         callcounter = 0;

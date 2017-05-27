@@ -1,6 +1,7 @@
 package com.ahitugrad.notifman;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -20,6 +21,7 @@ public class CustomApplication extends Application {
     public static final int SCREEN = 0;
     public static final int CALL = 1;
     public static final int ACTIVITY = 2;
+    public static boolean TRACK = true;
 
 
     private DBHelper db;
@@ -28,6 +30,7 @@ public class CustomApplication extends Application {
     public void onCreate() {
         super.onCreate();
         SharedPreferences mPrefs = getSharedPreferences(NOTIFICATION_PREF_NAME,MODE_PRIVATE);
+        TRACK = mPrefs.getBoolean("track",true);
         if(notId == -1){
             mPrefs.edit().putInt("latestid", 0);
             db = new DBHelper(getApplicationContext());

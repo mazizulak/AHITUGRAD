@@ -17,6 +17,7 @@ import android.util.Log;
 import java.io.ByteArrayOutputStream;
 
 import static com.ahitugrad.notifman.CustomApplication.ISAVAILABLE;
+import static com.ahitugrad.notifman.CustomApplication.TRACK;
 
 
 public class NotificationService extends NotificationListenerService {
@@ -57,8 +58,6 @@ public class NotificationService extends NotificationListenerService {
             e.printStackTrace();
         }
 
-
-
         Log.i("Package", pack);
         //Log.i("Ticker", ticker);
         Log.i("Title", title);
@@ -79,7 +78,7 @@ public class NotificationService extends NotificationListenerService {
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(msgrcv);
 
-        if(!ISAVAILABLE){
+        if(!ISAVAILABLE && TRACK){
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 cancelNotification(sbn.getPackageName(), sbn.getTag(), sbn.getId());
             }

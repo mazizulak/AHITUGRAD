@@ -24,7 +24,10 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +39,7 @@ import java.util.Date;
 import static android.widget.Toast.LENGTH_LONG;
 import static com.ahitugrad.notifman.CustomApplication.ISAVAILABLE;
 import static com.ahitugrad.notifman.CustomApplication.NOTIFICATION_PREF_NAME;
+import static com.ahitugrad.notifman.CustomApplication.TRACK;
 import static com.ahitugrad.notifman.CustomApplication.getAndUpdateLatestId;
 import static com.ahitugrad.notifman.CustomApplication.getNotId;
 
@@ -45,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvWelcome;
     private RecyclerView rvNotifications;
     private RecyclerView.Adapter mAdapter;
+    private Switch switch1;
     private ArrayList<Notification> notifications = new ArrayList();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -56,14 +61,17 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_home:
                     rvNotifications.setVisibility(View.GONE);
                     tvWelcome.setVisibility(View.VISIBLE);
+                    switch1.setVisibility(View.GONE);
                     return true;
                 case R.id.navigation_dashboard:
                     rvNotifications.setVisibility(View.GONE);
                     tvWelcome.setVisibility(View.GONE);
+                    switch1.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_notifications:
                     rvNotifications.setVisibility(View.VISIBLE);
                     tvWelcome.setVisibility(View.GONE);
+                    switch1.setVisibility(View.GONE);
                     return true;
             }
             return false;
@@ -72,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private Context context;
+    private Intent service;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -84,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         context = getApplicationContext();
-        Intent service = new Intent(context, BackgroundService.class);
+        service = new Intent(context, BackgroundService.class);
         context.startService(service);
 
         //notifications.add(new Notification("Test","Test", ivtest,new Date()));
@@ -101,12 +110,39 @@ public class MainActivity extends AppCompatActivity {
 
         rvNotifications = (RecyclerView) findViewById(R.id.rvNotifications);
         tvWelcome = (TextView) findViewById(R.id.tvWelcome);
+        switch1 = (Switch) findViewById(R.id.switch1);
+
+        if(TRACK){
+            switch1.setChecked(true);
+        }else {
+            switch1.setChecked(false);
+        }
+
+        switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+
+                TRACK = isChecked;
+                SharedPreferences mPrefs = getSharedPreferences(NOTIFICATION_PREF_NAME,MODE_PRIVATE);
+                SharedPreferences.Editor editor = mPrefs.edit();
+                editor.putBoolean("track", TRACK);
+                editor.apply();
+
+                if(!TRACK){
+                    stopService(service);
+                }else {
+                    startService(service);
+                }
+
+            }
+        });
         Button bRelease = (Button) findViewById(R.id.bRelease);
 
         bRelease.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
 
                 ISAVAILABLE = true;
                 for (int i = 0; i < notifications.size() ; i++){
@@ -158,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
 
                 notifications.clear();
                 mAdapter.notifyDataSetChanged();
-
 
             }
         });
