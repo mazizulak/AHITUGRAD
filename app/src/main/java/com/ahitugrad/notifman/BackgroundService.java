@@ -21,6 +21,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static android.content.ContentValues.TAG;
+import static com.ahitugrad.notifman.CustomApplication.TRACK;
 
 /**
  * Created by maziz on 20.05.2017.
@@ -56,6 +57,8 @@ public class BackgroundService extends Service implements SensorEventListener {
     @Override
     public void onCreate()
     {
+        Log.v("BackgroundService: ", "Has created");
+
         registerScreenOffReceiver();
         registerScreenOnReceiver();
         registerCallListener();
@@ -112,10 +115,13 @@ public class BackgroundService extends Service implements SensorEventListener {
     @Override
     public void onDestroy()
     {
+        Log.v("onDestroy: ", "called for service");
         unregisterReceiver(m_ScreenOffReceiver);
         m_ScreenOffReceiver = null;
         unregisterReceiver(m_ScreenOnReceiver);
         m_ScreenOnReceiver = null;
+        sensorManager.unregisterListener(this);
+
     }
 
     private void registerScreenOffReceiver()
@@ -226,6 +232,7 @@ public class BackgroundService extends Service implements SensorEventListener {
                 if(calculateCriticalValue(callcounter,activitycounter,screencounter)>=1){
                     CustomApplication.ISAVAILABLE = true;
                     Log.v("Yes: ", "I am Available");
+                    Log.v("Notification: ",""+ MainActivity.notifications.get(2).getTitle());
                 }else {
                     CustomApplication.ISAVAILABLE = false;
                     Log.v("No: ", "I am not Available");

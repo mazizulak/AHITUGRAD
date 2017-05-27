@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView rvNotifications;
     private RecyclerView.Adapter mAdapter;
     private Switch switch1;
-    private ArrayList<Notification> notifications = new ArrayList();
+    public static ArrayList<Notification> notifications = new ArrayList();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Context context;
     private Intent service;
+    private Button bRelease;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -92,9 +93,7 @@ public class MainActivity extends AppCompatActivity {
         ivtest.setImageDrawable(getResources().getDrawable(R.drawable.logo));
 
 
-        context = getApplicationContext();
-        service = new Intent(context, BackgroundService.class);
-        context.startService(service);
+
 
         //notifications.add(new Notification("Test","Test", ivtest,new Date()));
 
@@ -114,6 +113,9 @@ public class MainActivity extends AppCompatActivity {
 
         if(TRACK){
             switch1.setChecked(true);
+            context = getApplicationContext();
+            service = new Intent(context, BackgroundService.class);
+            context.startService(service);
         }else {
             switch1.setChecked(false);
         }
@@ -131,69 +133,22 @@ public class MainActivity extends AppCompatActivity {
                 editor.apply();
 
                 if(!TRACK){
-                    stopService(service);
+                    stopService(new Intent(MainActivity.this, BackgroundService.class));
+                    stopService(new Intent(MainActivity.this, NotificationService.class));
                 }else {
-                    startService(service);
+                    startService(new Intent(MainActivity.this, BackgroundService.class));
+                    startService(new Intent(MainActivity.this, NotificationService.class));
                 }
 
             }
         });
-        Button bRelease = (Button) findViewById(R.id.bRelease);
+        bRelease = (Button) findViewById(R.id.bRelease);
 
         bRelease.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                ISAVAILABLE = true;
-                for (int i = 0; i < notifications.size() ; i++){
-
-                    Log.i("Şu Notu saldım: ", ""+i);
-                    Drawable appIcon = null;
-                    try {
-                        appIcon = getApplicationContext().getPackageManager().getApplicationIcon(notifications.get(i).getPackagename());
-                    } catch (PackageManager.NameNotFoundException e) {
-                        e.printStackTrace();
-                    }
-
-
-                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-                    mBuilder.setSmallIcon(R.mipmap.ic_launcher);
-                    mBuilder.setContentTitle(notifications.get(i).getTitle());
-                    mBuilder.setContentText(notifications.get(i).getContent());
-                    mBuilder.setAutoCancel(true);
-
-                    try {
-                        Bitmap largeIcon = (appIcon) != null ? ((BitmapDrawable) appIcon).getBitmap() : null;
-                        mBuilder.setLargeIcon(largeIcon);
-
-
-                    Intent resultIntent = getPackageManager().getLaunchIntentForPackage(notifications.get(i).getPackagename());
-                    PendingIntent resultPendingIntent =
-                            PendingIntent.getActivity(
-                                    getApplicationContext(),
-                                    0,
-                                    resultIntent,
-                                    PendingIntent.FLAG_UPDATE_CURRENT
-                            );
-
-                    mBuilder.setContentIntent(resultPendingIntent);
-
-
-                    // Sets an ID for the notification
-                                        int mNotificationId = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
-                    // Gets an instance of the NotificationManager service
-                                        NotificationManager mNotifyMgr =
-                                                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    // Builds the notification and issues it.
-                                        mNotifyMgr.notify(mNotificationId, mBuilder.build());
-                    }catch (Exception e){
-                        Log.e("Yakaladım:", e.toString());
-                    }
-
-                }
-
-                notifications.clear();
-                mAdapter.notifyDataSetChanged();
+                releaseNotifications();
 
             }
         });
@@ -220,6 +175,58 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void releaseNotifications() {
+        for (int i = 0; i < notifications.size() ; i++){
+
+            Log.i("Şu Notu saldım: ", ""+i);
+            Drawable appIcon = null;
+            try {
+                appIcon = getApplicationContext().getPackageManager().getApplicationIcon(notifications.get(i).getPackagename());
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+
+
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
+            mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+            mBuilder.setContentTitle(notifications.get(i).getTitle());
+            mBuilder.setContentText(notifications.get(i).getContent());
+            mBuilder.setAutoCancel(true);
+
+            try {
+                Bitmap largeIcon = (appIcon) != null ? ((BitmapDrawable) appIcon).getBitmap() : null;
+                mBuilder.setLargeIcon(largeIcon);
+
+
+            Intent resultIntent = getPackageManager().getLaunchIntentForPackage(notifications.get(i).getPackagename());
+            PendingIntent resultPendingIntent =
+                    PendingIntent.getActivity(
+                            getApplicationContext(),
+                            0,
+                            resultIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+
+            mBuilder.setContentIntent(resultPendingIntent);
+
+
+            // Sets an ID for the notification
+                                int mNotificationId = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
+            // Gets an instance of the NotificationManager service
+                                NotificationManager mNotifyMgr =
+                                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            // Builds the notification and issues it.
+                                mNotifyMgr.notify(mNotificationId, mBuilder.build());
+            }catch (Exception e){
+                Log.e("Yakaladım:", e.toString());
+            }
+
+        }
+
+        notifications.clear();
+        mAdapter.notifyDataSetChanged();
+    }
+
 
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
@@ -241,9 +248,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.v("OnReceive","Called in Main Activity");
 
-            if(!ISAVAILABLE){
-                Log.i("onReceive e girdim","");
+            if(!ISAVAILABLE && TRACK){
+                Log.v("ISAVAILABLE True", "onReceive e girdim");
                 String pack = intent.getStringExtra("package");
                 String title = intent.getStringExtra("title");
                 String text = intent.getStringExtra("text");

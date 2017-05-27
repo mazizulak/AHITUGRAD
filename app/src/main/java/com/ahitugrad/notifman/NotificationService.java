@@ -76,6 +76,9 @@ public class NotificationService extends NotificationListenerService {
         Log.i("iconId","iconid " + iconId);
         msgrcv.putExtra("icon",b);
 
+        Log.v("Notification","Service içindeyim");
+        Log.v("ISAVAILABLE: ", ""+ISAVAILABLE );
+        Log.v("TRACK: ", TRACK+"");
         LocalBroadcastManager.getInstance(context).sendBroadcast(msgrcv);
 
         if(!ISAVAILABLE && TRACK){
