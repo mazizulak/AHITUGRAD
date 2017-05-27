@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -15,8 +16,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.gson.JsonObject;
-
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -41,6 +41,11 @@ public class BackgroundService extends Service implements SensorEventListener {
     Timer timer1 = new Timer();
     Timer timer2 = new Timer();
     private boolean doOnce = true;
+    private Timer infiniteTimer = new Timer();
+    private DBHelper dbHelper;
+    public static double screencounter;
+    public static double callcounter;
+    public static double activitycounter;
 
     @Override
     public IBinder onBind(Intent arg0)
@@ -54,7 +59,20 @@ public class BackgroundService extends Service implements SensorEventListener {
         registerScreenOffReceiver();
         registerScreenOnReceiver();
         registerCallListener();
+        decideNotificationAllownessAndUpdateSQLTable();
+        dbHelper = new DBHelper(getApplicationContext());
 
+        initiateSensors();
+        resetCounters();
+    }
+
+    private void resetCounters() {
+        screencounter = 0;
+        callcounter = 0;
+        activitycounter =0;
+    }
+
+    private void initiateSensors() {
         sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
 
@@ -81,6 +99,7 @@ public class BackgroundService extends Service implements SensorEventListener {
             {
                 Log.v(TAG, "ACTION_SCREEN_ON");
                 Toast.makeText(context,"Hello",Toast.LENGTH_LONG).show();
+                CustomApplication.inputData(CustomApplication.SCREEN);
                 // do something, e.g. send Intent to main app
             }
         };
@@ -162,6 +181,7 @@ public class BackgroundService extends Service implements SensorEventListener {
         // Calculate activity and reset
         if (varianceSum >= 10.0f) {
             Log.v("Activity Level: " , "HIGH");
+            CustomApplication.inputData(CustomApplication.ACTIVITY);
         } else if (varianceSum < 10.0f && varianceSum > 3.0f) {
             Log.v("Activity Level: " , "LOW");
         } else {
@@ -172,10 +192,41 @@ public class BackgroundService extends Service implements SensorEventListener {
         varianceSum = avg = sum = count = 0;
     }
 
-    public void decideNotificationAllowOrNot(){
-        ///MOST IMPORTANT PARTT!!!!
+    public void decideNotificationAllownessAndUpdateSQLTable(){
+
+        infiniteTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                Date d = new Date();
+                int index = CustomApplication.getIndexOfAvailabilityArray(d);
+                int last15minCheck;
+                Cursor cursor = dbHelper.getData(index);
+                double pastCall = cursor.getDouble(cursor.getColumnIndex(DBHelper.COLUMN_CALL));
+                double pastActivity = cursor.getDouble(cursor.getColumnIndex(DBHelper.COLUMN_ACTIVITY));
+                double pastScreen = cursor.getDouble(cursor.getColumnIndex(DBHelper.COLUMN_SCREEN));
+
+
+                callcounter = callcounter*0.8 + pastCall*0.2;
+                activitycounter = activitycounter*0.8 + pastActivity*0.2;
+                screencounter = screencounter*0.8 + pastScreen*0.2;
+
+
+                //Decide the IS_AVAILABLE
+                if(calculateCriticalValue(callcounter,activitycounter,screencounter)>=1){
+                    CustomApplication.ISAVAILABLE = true;
+                }else {
+                    CustomApplication.ISAVAILABLE = false;
+                }
+
+                dbHelper.updateData(index,callcounter,activitycounter,screencounter);
+                resetCounters();
+            }
+        },15*60*1000, 15 * 60 * 1000 );
     }
 
+    public double calculateCriticalValue(double call, double activity, double screen){
+        return 0.8*call + 0.3*activity + 0.2*screen;
+    }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {

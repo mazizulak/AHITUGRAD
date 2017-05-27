@@ -56,15 +56,15 @@ public class CallListener extends PhoneStateListener {
                         int duration = c.getColumnIndex(CallLog.Calls.DURATION);// for duration
                         int number = c.getColumnIndex(CallLog.Calls.NUMBER);
                         c.moveToLast();
-                        //while (c.moveToNext()){
-                            String sure = c.getString(duration);
-                            String phNumber = c.getString(number);
-                            Log.v("Callog Duration: ",sure);
-                            Log.v("Call Number: ", phNumber);
-                        //}
+
+                        String sure = c.getString(duration);
+                        String phNumber = c.getString(number);
+                        Log.v("Callog Duration: ",sure);
+                        Log.v("Call Number: ", phNumber);
+                        CustomApplication.inputData(CustomApplication.CALL);
 
                     }
-                },4 * 1000);
+                },2 * 1000);
 
 
                 break;

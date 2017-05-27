@@ -27,7 +27,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
                 "create table "+TABLE_NAME+" " +
-                        "("+COLUMN_ID+" integer, "+COLUMN_CALL+" integer,"+COLUMN_SCREEN+" integer,"+COLUMN_ACTIVITY+" integer)"
+                        "("+COLUMN_ID+" integer, "+COLUMN_CALL+" real,"+COLUMN_SCREEN+" real,"+COLUMN_ACTIVITY+" real)"
         );
     }
 
@@ -51,7 +51,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateData(int id, int call, int screen, int activity) {
+    public void updateData(int id, double call, double screen, double activity) {
 
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues contentValues = new ContentValues();
