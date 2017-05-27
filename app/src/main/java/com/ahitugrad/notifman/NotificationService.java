@@ -41,7 +41,7 @@ public class NotificationService extends NotificationListenerService {
         String title = extras.getString("android.title");
         String text = extras.getCharSequence("android.text").toString();
         int iconId = extras.getInt(Notification.EXTRA_SMALL_ICON);
-        if(pack.equals("com.ahitugrad.notfiman")) return;
+
         Context remotePackageContext;
         Bitmap bmp = null;
         try {
@@ -55,11 +55,6 @@ public class NotificationService extends NotificationListenerService {
             e.printStackTrace();
         }
 
-        Log.i("Package", pack);
-        //Log.i("Ticker", ticker);
-        Log.i("Title", title);
-        Log.i("Text", text);
-
         Intent msgrcv = new Intent("Msg");
         msgrcv.putExtra("package", pack);
         msgrcv.putExtra("title", title);
@@ -69,7 +64,6 @@ public class NotificationService extends NotificationListenerService {
         bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] b = baos.toByteArray();
 
-        Log.i("iconId","iconid " + iconId);
         msgrcv.putExtra("icon",b);
 
         Log.v("Notification","Service içindeyim");
@@ -77,7 +71,7 @@ public class NotificationService extends NotificationListenerService {
         Log.v("TRACK: ", TRACK+"");
         LocalBroadcastManager.getInstance(context).sendBroadcast(msgrcv);
 
-        if(!ISAVAILABLE && TRACK){
+        if(!ISAVAILABLE && TRACK && !pack.equals("com.ahitugrad.notfiman")){
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 cancelNotification(sbn.getPackageName(), sbn.getTag(), sbn.getId());
             }

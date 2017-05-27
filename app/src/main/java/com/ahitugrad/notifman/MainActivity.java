@@ -255,18 +255,17 @@ public class MainActivity extends AppCompatActivity {
                 String pack = intent.getStringExtra("package");
                 String title = intent.getStringExtra("title");
                 String text = intent.getStringExtra("text");
-                Toast.makeText(getApplicationContext(), title, LENGTH_LONG).show();
                 if(pack.equals("com.ahitugrad.notifman")) return;
                 Notification newNot = new Notification(getAndUpdateLatestId(), title, pack, text, new Date());
                 notifications.add(newNot);
                 mAdapter.notifyDataSetChanged();
                 SharedPreferences.Editor prefsEditor = mPrefs.edit();
                 Gson gson = new Gson();
-                Log.i("GSON", " işlemine başladım");
                 String json = gson.toJson(newNot); // myObject - instance of MyObject
-                Log.i("toJsonBitt","ok");
                 prefsEditor.putString("Notification" + newNot.getId(), json);
                 prefsEditor.apply();
+            }else {
+                mAdapter.notifyDataSetChanged();
             }
 
 

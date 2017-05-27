@@ -63,7 +63,7 @@ public class CallListener extends PhoneStateListener {
                         Log.v("Call Number: ", phNumber);
 
                         if(Integer.parseInt(sure)>10){
-                            for(int i = 0; i < (Integer.parseInt(sure) % 180); i++)
+                            for(int i = 0; i < (Integer.parseInt(sure)); i = i+180)
                             CustomApplication.inputData(CustomApplication.CALL);
                         }
 

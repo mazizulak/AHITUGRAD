@@ -28,7 +28,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static android.content.ContentValues.TAG;
-import static com.ahitugrad.notifman.CustomApplication.TRACK;
 import static com.ahitugrad.notifman.MainActivity.notifications;
 
 /**
@@ -111,7 +110,6 @@ public class BackgroundService extends Service implements SensorEventListener {
             public void onReceive(Context context, Intent intent)
             {
                 Log.v(TAG, "ACTION_SCREEN_ON");
-                Toast.makeText(context,"Hello",Toast.LENGTH_LONG).show();
                 CustomApplication.inputData(CustomApplication.SCREEN);
                 // do something, e.g. send Intent to main app
             }
@@ -167,9 +165,7 @@ public class BackgroundService extends Service implements SensorEventListener {
             ay=event.values[1];
             az=event.values[2];
             update(ax,ay,az);
-            Log.v("Event ax: ",ax + "");
-            Log.v("Event ay: ",ay + "");
-            Log.v("Event az: ",az + "");
+            Log.v("Event ax: ",ax + "Event ay: " + ay + "Event az: "+ az);
         }
 
     }
@@ -189,7 +185,6 @@ public class BackgroundService extends Service implements SensorEventListener {
                 + (count - 1) *(deltaAvg * deltaAvg);
         sum += magnitude;
         avg = newAvg;
-        //Log.d(TAG, "UPDATED VALUES:(count, varianceSum, sum, avg) " + count + ", " + varianceSum+ ", " + sum+ ", " + avg);
     }
 
     private void decideActivityLevel() {
@@ -240,8 +235,8 @@ public class BackgroundService extends Service implements SensorEventListener {
                 if(calculateCriticalValue(callcounter,activitycounter,screencounter)>=1){
                     CustomApplication.ISAVAILABLE = true;
                     Log.v("Yes: ", "I am Available");
-                    Log.v("Notification: ",""+ notifications.get(2).getTitle());
                     releaseNotificationsToDevice();
+                    notifications.clear();
                 }else {
                     CustomApplication.ISAVAILABLE = false;
                     Log.v("No: ", "I am not Available");
