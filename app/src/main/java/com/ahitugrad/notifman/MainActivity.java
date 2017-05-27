@@ -251,12 +251,12 @@ public class MainActivity extends AppCompatActivity {
             Log.v("OnReceive","Called in Main Activity");
 
             if(!ISAVAILABLE && TRACK){
-                Log.v("ISAVAILABLE True", "onReceive e girdim");
+                Log.v("ISAVAILABLE False", "onReceive e girdim");
                 String pack = intent.getStringExtra("package");
                 String title = intent.getStringExtra("title");
                 String text = intent.getStringExtra("text");
                 Toast.makeText(getApplicationContext(), title, LENGTH_LONG).show();
-
+                if(pack.equals("com.ahitugrad.notifman")) return;
                 Notification newNot = new Notification(getAndUpdateLatestId(), title, pack, text, new Date());
                 notifications.add(newNot);
                 mAdapter.notifyDataSetChanged();

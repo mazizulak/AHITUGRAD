@@ -25,18 +25,15 @@ public class NotificationService extends NotificationListenerService {
     Context context;
 
     @Override
-
     public void onCreate() {
 
         super.onCreate();
         context = getApplicationContext();
 
     }
+
     @Override
-
-
     public void onNotificationPosted(StatusBarNotification sbn) {
-
 
         String pack = sbn.getPackageName();
         //String ticker = sbn.getNotification().tickerText.toString();
@@ -44,8 +41,8 @@ public class NotificationService extends NotificationListenerService {
         String title = extras.getString("android.title");
         String text = extras.getCharSequence("android.text").toString();
         int iconId = extras.getInt(Notification.EXTRA_SMALL_ICON);
-
-        Context remotePackageContext = null;
+        if(pack.equals("com.ahitugrad.notfiman")) return;
+        Context remotePackageContext;
         Bitmap bmp = null;
         try {
             remotePackageContext = getApplicationContext().createPackageContext(pack, 0);
@@ -65,7 +62,6 @@ public class NotificationService extends NotificationListenerService {
 
         Intent msgrcv = new Intent("Msg");
         msgrcv.putExtra("package", pack);
-        //msgrcv.putExtra("ticker", ticker);
         msgrcv.putExtra("title", title);
         msgrcv.putExtra("text", text);
 
@@ -94,7 +90,6 @@ public class NotificationService extends NotificationListenerService {
     }
 
     @Override
-
     public void onNotificationRemoved(StatusBarNotification sbn) {
         Log.i("Msg","Notification Removed");
 

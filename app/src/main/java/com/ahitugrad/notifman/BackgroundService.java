@@ -1,16 +1,23 @@
 package com.ahitugrad.notifman;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
+import android.support.v7.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -22,6 +29,7 @@ import java.util.TimerTask;
 
 import static android.content.ContentValues.TAG;
 import static com.ahitugrad.notifman.CustomApplication.TRACK;
+import static com.ahitugrad.notifman.MainActivity.notifications;
 
 /**
  * Created by maziz on 20.05.2017.
@@ -232,7 +240,8 @@ public class BackgroundService extends Service implements SensorEventListener {
                 if(calculateCriticalValue(callcounter,activitycounter,screencounter)>=1){
                     CustomApplication.ISAVAILABLE = true;
                     Log.v("Yes: ", "I am Available");
-                    Log.v("Notification: ",""+ MainActivity.notifications.get(2).getTitle());
+                    Log.v("Notification: ",""+ notifications.get(2).getTitle());
+                    releaseNotificationsToDevice();
                 }else {
                     CustomApplication.ISAVAILABLE = false;
                     Log.v("No: ", "I am not Available");
@@ -242,6 +251,55 @@ public class BackgroundService extends Service implements SensorEventListener {
                 resetCounters();
             }
         },1 * 60 * 1000, 1 * 60 * 1000 ); ///CHANGE TO 15 MIN !!!!
+    }
+
+    private void releaseNotificationsToDevice() {
+        for (int i = 0; i < notifications.size() ; i++){
+
+            Log.i("Şu Notu saldım: ", ""+i);
+            Drawable appIcon = null;
+            try {
+                appIcon = getApplicationContext().getPackageManager().getApplicationIcon(notifications.get(i).getPackagename());
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+
+
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
+            mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+            mBuilder.setContentTitle(notifications.get(i).getTitle());
+            mBuilder.setContentText(notifications.get(i).getContent());
+            mBuilder.setAutoCancel(true);
+
+            try {
+                Bitmap largeIcon = (appIcon) != null ? ((BitmapDrawable) appIcon).getBitmap() : null;
+                mBuilder.setLargeIcon(largeIcon);
+
+
+                Intent resultIntent = getPackageManager().getLaunchIntentForPackage(notifications.get(i).getPackagename());
+                PendingIntent resultPendingIntent =
+                        PendingIntent.getActivity(
+                                getApplicationContext(),
+                                0,
+                                resultIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT
+                        );
+
+                mBuilder.setContentIntent(resultPendingIntent);
+
+
+                // Sets an ID for the notification
+                int mNotificationId = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
+                // Gets an instance of the NotificationManager service
+                NotificationManager mNotifyMgr =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                // Builds the notification and issues it.
+                mNotifyMgr.notify(mNotificationId, mBuilder.build());
+            }catch (Exception e){
+                Log.e("Yakaladım:", e.toString());
+            }
+
+        }
     }
 
     public double calculateCriticalValue(double call, double activity, double screen){

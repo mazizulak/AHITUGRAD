@@ -70,7 +70,7 @@ public class CustomApplication extends Application {
                 BackgroundService.callcounter++;
                 break;
             case ACTIVITY:
-                BackgroundService.callcounter++;
+                BackgroundService.activitycounter++;
                 break;
             default:
                 Log.v("inputData: ","Unexpected input");
