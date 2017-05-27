@@ -59,8 +59,8 @@ public class BackgroundService extends Service implements SensorEventListener {
         registerScreenOffReceiver();
         registerScreenOnReceiver();
         registerCallListener();
-        decideNotificationAllownessAndUpdateSQLTable();
         dbHelper = new DBHelper(getApplicationContext());
+        decideNotificationAllownessAndUpdateSQLTable();
 
         initiateSensors();
         resetCounters();
@@ -194,34 +194,45 @@ public class BackgroundService extends Service implements SensorEventListener {
 
     public void decideNotificationAllownessAndUpdateSQLTable(){
 
+
         infiniteTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                Date d = new Date();
-                int index = CustomApplication.getIndexOfAvailabilityArray(d);
-                int last15minCheck;
+                int index = CustomApplication.getIndexOfAvailabilityArray();
+
                 Cursor cursor = dbHelper.getData(index);
+                cursor.moveToFirst();
                 double pastCall = cursor.getDouble(cursor.getColumnIndex(DBHelper.COLUMN_CALL));
                 double pastActivity = cursor.getDouble(cursor.getColumnIndex(DBHelper.COLUMN_ACTIVITY));
                 double pastScreen = cursor.getDouble(cursor.getColumnIndex(DBHelper.COLUMN_SCREEN));
 
+                Log.v("15 Min Task:","Started");
+                Log.v("index: ",index+"");
+                Log.v("callcounter: ", callcounter+"");
+                Log.v("activitycounter: ",activitycounter+"");
+                Log.v("screencounter:",screencounter+"");
+
+                Log.v("pastcallcounter: ", pastCall+"");
+                Log.v("pastactivitycounter: ",pastActivity+"");
+                Log.v("pastscreencounter:",pastScreen+"");
 
                 callcounter = callcounter*0.8 + pastCall*0.2;
                 activitycounter = activitycounter*0.8 + pastActivity*0.2;
                 screencounter = screencounter*0.8 + pastScreen*0.2;
 
-
                 //Decide the IS_AVAILABLE
                 if(calculateCriticalValue(callcounter,activitycounter,screencounter)>=1){
                     CustomApplication.ISAVAILABLE = true;
+                    Log.v("Yes: ", "I am Available");
                 }else {
                     CustomApplication.ISAVAILABLE = false;
+                    Log.v("No: ", "I am not Available");
                 }
 
                 dbHelper.updateData(index,callcounter,activitycounter,screencounter);
                 resetCounters();
             }
-        },15*60*1000, 15 * 60 * 1000 );
+        },1 * 60 * 1000, 1 * 60 * 1000 ); ///CHANGE TO 15 MIN !!!!
     }
 
     public double calculateCriticalValue(double call, double activity, double screen){

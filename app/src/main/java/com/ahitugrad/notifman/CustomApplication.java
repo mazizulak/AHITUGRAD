@@ -6,6 +6,7 @@ import android.util.Log;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Created by huseyin on 07/05/2017.
@@ -45,11 +46,14 @@ public class CustomApplication extends Application {
         return notId-1;
     }
 
-    public  static int getIndexOfAvailabilityArray(Date time){
+    public  static int getIndexOfAvailabilityArray(){
 
         Calendar c = Calendar.getInstance();
-        c.setTime(time);
-        int index = (c.get(Calendar.MINUTE)/15) + 4*c.get(Calendar.HOUR) + 96*(c.get(Calendar.DAY_OF_WEEK))+1;
+        c.setTime(new GregorianCalendar().getTime());
+        int index = (int) Math.floor((c.get(Calendar.MINUTE)/15) + 4*c.get(Calendar.HOUR) + 96*(c.get(Calendar.DAY_OF_WEEK)-1)+1);
+        Log.v("Day Of Week:", c.get(Calendar.DAY_OF_WEEK)+"");
+        Log.v("HOUR:", c.get(Calendar.HOUR)+"");
+        Log.v("MINUTE:", c.get(Calendar.MINUTE)+"");
         Log.v("Array Index: ", index + "");
         return index;
 

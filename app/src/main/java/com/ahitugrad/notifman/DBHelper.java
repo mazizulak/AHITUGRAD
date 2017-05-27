@@ -10,16 +10,16 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by maziz on 23.05.2017.
  */
 
-public class DBHelper extends SQLiteOpenHelper {
+class DBHelper extends SQLiteOpenHelper {
 
-    public static final String DATABASE_NAME = "User.db";
-    public static final String TABLE_NAME = "records";
-    public static final String COLUMN_ID = "id";
-    public static final String COLUMN_CALL = "call";
-    public static final String COLUMN_SCREEN = "screen";
-    public static final String COLUMN_ACTIVITY = "activity";
+    private static final String DATABASE_NAME = "User.db";
+    private static final String TABLE_NAME = "records";
+    private static final String COLUMN_ID = "id";
+    static final String COLUMN_CALL = "call";
+    static final String COLUMN_SCREEN = "screen";
+    static final String COLUMN_ACTIVITY = "activity";
 
-    public DBHelper(Context context) {
+    DBHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
 
@@ -36,7 +36,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public void init(String testcall, String testscreen, String testactivity) {
+    void init(String testcall, String testscreen, String testactivity) {
         String[] callparts = testcall.split(",");
         String[] screenparts = testscreen.split(",");
         String[] activityparts = testactivity.split(",");
@@ -51,7 +51,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateData(int id, double call, double screen, double activity) {
+    void updateData(int id, double call, double screen, double activity) {
 
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues contentValues = new ContentValues();
@@ -62,9 +62,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public Cursor getData(int id) {
+    Cursor getData(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from contacts where id="+id+"", null );
+        Cursor res =  db.rawQuery( "select * from "+TABLE_NAME+" where id="+id+"", null );
         return res;
     }
 }
