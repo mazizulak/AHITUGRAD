@@ -245,7 +245,7 @@ public class BackgroundService extends Service implements SensorEventListener {
                 dbHelper.updateData(index,callcounter,activitycounter,screencounter);
                 resetCounters();
             }
-        },1 * 60 * 1000, 1 * 60 * 1000 ); ///CHANGE TO 15 MIN !!!!
+        },15 * 60 * 1000, 15 * 60 * 1000 ); ///CHANGE TO 15 MIN !!!!
     }
 
     private void releaseNotificationsToDevice() {
