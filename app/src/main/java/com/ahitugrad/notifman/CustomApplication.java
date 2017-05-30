@@ -41,6 +41,8 @@ public class CustomApplication extends Application {
         }
         notId = mPrefs.getInt("latestid",0);
 
+        Log.v("Availibilty: ",ISAVAILABLE+"");
+
     }
 
     public static int getAndUpdateLatestId(){

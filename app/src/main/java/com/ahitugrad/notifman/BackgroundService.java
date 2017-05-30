@@ -165,7 +165,7 @@ public class BackgroundService extends Service implements SensorEventListener {
             ay=event.values[1];
             az=event.values[2];
             update(ax,ay,az);
-            Log.v("Event ax: ",ax + "Event ay: " + ay + "Event az: "+ az);
+            //Log.v("Event ax: ",ax + "Event ay: " + ay + "Event az: "+ az);
         }
 
     }

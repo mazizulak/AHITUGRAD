@@ -23,6 +23,7 @@ import static com.ahitugrad.notifman.CustomApplication.TRACK;
 public class NotificationService extends NotificationListenerService {
 
     Context context;
+    private String text;
 
     @Override
     public void onCreate() {
@@ -39,7 +40,9 @@ public class NotificationService extends NotificationListenerService {
         //String ticker = sbn.getNotification().tickerText.toString();
         Bundle extras = sbn.getNotification().extras;
         String title = extras.getString("android.title");
-        String text = extras.getCharSequence("android.text").toString();
+        if(extras.getCharSequence("android.text") !=null){
+            text = extras.getCharSequence("android.text").toString();
+        }
         int iconId = extras.getInt(Notification.EXTRA_SMALL_ICON);
 
         Context remotePackageContext;
@@ -60,11 +63,13 @@ public class NotificationService extends NotificationListenerService {
         msgrcv.putExtra("title", title);
         msgrcv.putExtra("text", text);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] b = baos.toByteArray();
+        if(bmp !=null){
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            byte[] b = baos.toByteArray();
+            msgrcv.putExtra("icon",b);
+        }
 
-        msgrcv.putExtra("icon",b);
 
         Log.v("Notification","Service içindeyim");
         Log.v("ISAVAILABLE: ", ""+ISAVAILABLE );
