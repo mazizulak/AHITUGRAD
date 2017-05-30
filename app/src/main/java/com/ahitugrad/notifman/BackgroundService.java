@@ -21,7 +21,6 @@ import android.support.v7.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.Date;
 import java.util.Timer;
@@ -70,7 +69,7 @@ public class BackgroundService extends Service implements SensorEventListener {
         registerScreenOnReceiver();
         registerCallListener();
         dbHelper = new DBHelper(getApplicationContext());
-        decideNotificationAllownessAndUpdateSQLTable();
+        decideAvailabilityAndUpdateSQLTable();
 
         initiateSensors();
         resetCounters();
@@ -111,7 +110,6 @@ public class BackgroundService extends Service implements SensorEventListener {
             {
                 Log.v(TAG, "ACTION_SCREEN_ON");
                 CustomApplication.inputData(CustomApplication.SCREEN);
-                // do something, e.g. send Intent to main app
             }
         };
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
@@ -173,6 +171,7 @@ public class BackgroundService extends Service implements SensorEventListener {
     //Function below is taken from FUNF-CORE-ANDROID
     //Data collection is made by funf in a box including ActivityProbe
     //In order to feed our algorithm we must use the same calculations
+
     private void update(float x, float y, float z) {
         //Log.d(TAG, "UPDATE:(" + x + "," + y + "," + z + ")");
         // Iteratively calculate variance sum
@@ -188,8 +187,6 @@ public class BackgroundService extends Service implements SensorEventListener {
     }
 
     private void decideActivityLevel() {
-        //Log.d(LogUtil.TAG, "interval RESET");
-        // Calculate activity and reset
         if (varianceSum >= 10.0f) {
             Log.v("Activity Level: " , "HIGH");
             CustomApplication.inputData(CustomApplication.ACTIVITY);
@@ -198,14 +195,11 @@ public class BackgroundService extends Service implements SensorEventListener {
         } else {
             Log.v("Activity Level: " , "NONE");
         }
-
         Log.v("VarianceSum: ", varianceSum +"");
         varianceSum = avg = sum = count = 0;
     }
 
-    public void decideNotificationAllownessAndUpdateSQLTable(){
-
-
+    public void decideAvailabilityAndUpdateSQLTable(){
         infiniteTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -217,16 +211,6 @@ public class BackgroundService extends Service implements SensorEventListener {
                 double pastActivity = cursor.getDouble(cursor.getColumnIndex(DBHelper.COLUMN_ACTIVITY));
                 double pastScreen = cursor.getDouble(cursor.getColumnIndex(DBHelper.COLUMN_SCREEN));
 
-                Log.v("15 Min Task:","Started");
-                Log.v("index: ",index+"");
-                Log.v("callcounter: ", callcounter+"");
-                Log.v("activitycounter: ",activitycounter+"");
-                Log.v("screencounter:",screencounter+"");
-
-                Log.v("pastcallcounter: ", pastCall+"");
-                Log.v("pastactivitycounter: ",pastActivity+"");
-                Log.v("pastscreencounter:",pastScreen+"");
-
                 callcounter = callcounter*0.8 + pastCall*0.2;
                 activitycounter = activitycounter*0.8 + pastActivity*0.2;
                 screencounter = screencounter*0.8 + pastScreen*0.2;
@@ -234,18 +218,15 @@ public class BackgroundService extends Service implements SensorEventListener {
                 //Decide the IS_AVAILABLE
                 if(calculateCriticalValue(callcounter,activitycounter,screencounter)>=1){
                     CustomApplication.ISAVAILABLE = true;
-                    Log.v("Yes: ", "I am Available");
                     releaseNotificationsToDevice();
                     notifications.clear();
                 }else {
                     CustomApplication.ISAVAILABLE = false;
-                    Log.v("No: ", "I am not Available");
                 }
-
                 dbHelper.updateData(index,callcounter,activitycounter,screencounter);
                 resetCounters();
             }
-        },15 * 60 * 1000, 15 * 60 * 1000 ); ///CHANGE TO 15 MIN !!!!
+        },15 * 60 * 1000, 15 * 60 * 1000 );
     }
 
     private void releaseNotificationsToDevice() {
