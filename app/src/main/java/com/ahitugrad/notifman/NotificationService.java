@@ -74,9 +74,10 @@ public class NotificationService extends NotificationListenerService {
         Log.v("Notification","Service içindeyim");
         Log.v("ISAVAILABLE: ", ""+ISAVAILABLE );
         Log.v("TRACK: ", TRACK+"");
+        Log.v("Package: ", pack);
         LocalBroadcastManager.getInstance(context).sendBroadcast(msgrcv);
 
-        if(!ISAVAILABLE && TRACK && !pack.equals("com.ahitugrad.notfiman")){
+        if(!ISAVAILABLE && TRACK && !pack.equals("com.ahitugrad.notifman")){
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 cancelNotification(sbn.getPackageName(), sbn.getTag(), sbn.getId());
             }

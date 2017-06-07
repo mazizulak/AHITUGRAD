@@ -204,7 +204,7 @@ public class BackgroundService extends Service implements SensorEventListener {
             @Override
             public void run() {
                 int index = CustomApplication.getIndexOfAvailabilityArray();
-
+                Log.v("15 Min Task:","Started");
                 Cursor cursor = dbHelper.getData(index);
                 cursor.moveToFirst();
                 double pastCall = cursor.getDouble(cursor.getColumnIndex(DBHelper.COLUMN_CALL));
